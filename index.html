@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Genre Quest — Creative Portals</title>
+<style>
+:root {
+  --accent: #37d8cf;
+  --text: #edf3ff;
+  --muted: #bdc8df;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--text);
+  background: #0b1023;
+  background-attachment: fixed;
+  font: 17px/1.6 system-ui, sans-serif;
+}
+button { font: inherit; cursor: pointer; }
+button:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 5px;
+}
+header, main, footer {
+  max-width: 1240px;
+  margin: auto;
+  padding: 28px;
+}
+header { padding-top: 40px; }
+h1 {
+  font-size: clamp(40px, 6vw, 76px);
+  line-height: 1.05;
+  margin: 12px 0;
+}
+h2 {
+  font-size: clamp(29px, 4vw, 48px);
+  line-height: 1.15;
+  margin: 12px 0;
+}
+h3 { margin: 0 0 12px; font-size: 21px; }
+p { margin: 10px 0; }
+.intro { max-width: 760px; color: var(--muted); }
+.progress { color: var(--muted); font-size: 15px; }
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 25px;
+}
+.portal {
+  position: relative;
+  overflow: hidden;
+  min-height: 175px;
+  padding: 26px 8px 14px;
+  border: 2px solid var(--c);
+  border-radius: 60px 60px 15px 15px;
+  background: #16223a;
+  color: white;
+  text-align: center;
+  transition: transform .2s, box-shadow .2s;
+}
+.portal::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid var(--c);
+  border-radius: inherit;
+  opacity: .45;
+  pointer-events: none;
+}
+.portal:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 25px color-mix(in srgb, var(--c) 35%, transparent);
+}
+.portal[aria-selected="true"] {
+  box-shadow: 0 0 0 2px var(--c),
+              0 0 35px color-mix(in srgb, var(--c) 30%, transparent);
+}
+.symbol { display: block; font-size: 35px; margin-bottom: 8px; }
+.portal strong { display: block; font-size: 16px; }
+.portal small { font-size: 11px; color: var(--muted); }
+
+/* Mystery: investigation board */
+.genre-0 {
+  border-radius: 15px;
+  background: repeating-linear-gradient(
+    -30deg, #101f2b 0 18px, #12333e 19px 20px
+  );
+}
+.genre-0 .symbol { filter: drop-shadow(0 0 6px #37d8cf); }
+
+/* Fantasy: glowing magical doorway */
+.genre-1 {
+  background: radial-gradient(ellipse at 50% 20%, #76529a, #241939 65%);
+  border: 3px double #b69aff;
+}
+.genre-1 .symbol {
+  color: #e8cfff;
+  text-shadow: 0 0 18px #c396ff;
+}
+
+/* Adventure: contour map */
+.genre-2 {
+  background: repeating-radial-gradient(
+    ellipse at 50% 100%,
+    #243931 0 16px,
+    #50704b 17px 18px,
+    #243931 19px 28px
+  );
+  border-radius: 45px 45px 12px 12px;
+}
+
+/* Science fiction: spaceship hatch */
+.genre-3 {
+  background:
+    radial-gradient(circle at 22% 30%, #e3f9ff 0 1px, transparent 2px),
+    radial-gradient(circle at 72% 17%, #c1eaff 0 1px, transparent 2px),
+    linear-gradient(145deg, #194e76, #08132d);
+  border-radius: 12px;
+  clip-path: polygon(
+    12% 0, 88% 0, 100% 12%, 100% 88%,
+    88% 100%, 12% 100%, 0 88%, 0 12%
+  );
+}
+.genre-3::before {
+  border-radius: 4px;
+  border: 2px dashed #6bcaff;
+}
+.genre-3 .symbol { filter: drop-shadow(0 0 10px #6bcaff); }
+
+/* Humour: comic-book speech bubble */
+.genre-4 {
+  background:
+    radial-gradient(#f6d66544 1px, transparent 2px),
+    #332544;
+  background-size: 8px 8px;
+  border: 3px solid #f6d665;
+  border-radius: 20px 20px 20px 4px;
+}
+.genre-4 .symbol { transform: rotate(-9deg); }
+
+/* Poetry: notebook and ink */
+.genre-5 {
+  background: repeating-linear-gradient(
+    0deg, #392033 0 22px, #664052 23px 24px
+  );
+  border-radius: 10px;
+  border-left: 6px solid #f39dad;
+}
+.genre-5 .symbol { color: #ffc5d1; }
+
+/* A different world behind each portal */
+body[data-genre="0"] {
+  background-color: #071c21;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 39px, #36d8cf0a 40px),
+    radial-gradient(ellipse at 0% 0%, #164953, transparent 70%);
+}
+body[data-genre="1"] {
+  background-color: #170d2c;
+  background-image:
+    radial-gradient(circle at 20% 25%, #b69aff80 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 40%, #d7c4ff80 0 1px, transparent 2px),
+    radial-gradient(ellipse at 80% 5%, #513175, transparent 65%);
+  background-size: 70px 80px, 110px 130px, 100% 100%;
+}
+body[data-genre="2"] {
+  background-color: #20241d;
+  background-image:
+    repeating-radial-gradient(
+      ellipse at 90% 70%,
+      transparent 0 30px,
+      #ffb06718 31px 32px,
+      transparent 33px 55px
+    ),
+    linear-gradient(140deg, #344332, #171d20);
+}
+body[data-genre="3"] {
+  background-color: #050c20;
+  background-image:
+    radial-gradient(circle, #c9f2ff90 1px, transparent 1.5px),
+    radial-gradient(circle, #6bcaff70 1px, transparent 2px),
+    radial-gradient(ellipse at 80% 10%, #174976, transparent 60%);
+  background-size: 83px 97px, 137px 151px, 100% 100%;
+}
+body[data-genre="4"] {
+  background-color: #241c2d;
+  background-image:
+    radial-gradient(#f6d66530 1px, transparent 2px),
+    linear-gradient(130deg, #3c2446, #14283b);
+  background-size: 14px 14px, 100% 100%;
+}
+body[data-genre="5"] {
+  background-color: #241321;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 38px, #f39dad12 39px 40px),
+    radial-gradient(ellipse at 20% 0%, #563147, transparent 70%);
+}
+.hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 210px;
+  border: 1px solid var(--accent);
+  border-radius: 24px;
+  padding: 30px 170px 30px 30px;
+  background: linear-gradient(
+    125deg,
+    color-mix(in srgb, var(--accent) 18%, #141c33),
+    #141c33
+  );
+}
+.hero::after {
+  position: absolute;
+  right: 28px;
+  top: 28px;
+  font-size: 100px;
+  line-height: 1.3;
+  opacity: .55;
+  pointer-events: none;
+}
+body[data-genre="0"] .hero::after { content: "🔎"; transform: rotate(-12deg); }
+body[data-genre="1"] .hero::after {
+  content: "✧";
+  color: #d8c8ff;
+  text-shadow: 0 0 25px #b69aff;
+}
+body[data-genre="2"] .hero::after { content: "⛰"; color: #ffb067; }
+body[data-genre="3"] .hero::after {
+  content: "🪐";
+  filter: drop-shadow(0 0 18px #6bcaff);
+}
+body[data-genre="4"] .hero::after {
+  content: "HA!";
+  color: #f6d665;
+  font-size: 64px;
+  font-weight: 900;
+  transform: rotate(-10deg);
+  text-shadow: 4px 4px #131629;
+}
+body[data-genre="5"] .hero::after {
+  content: "✒";
+  color: #f39dad;
+  transform: rotate(-20deg);
+}
+body[data-genre="3"] .hero {
+  border-radius: 8px;
+  border: 2px solid #6bcaff;
+  background: linear-gradient(120deg, #10354eeb, #0c152df0);
+  box-shadow: inset 0 0 35px #6bcaff15, 0 0 20px #6bcaff12;
+}
+body[data-genre="3"] .card {
+  border-radius: 8px;
+  border-color: #396581;
+  background: #101e34f0;
+}
+body[data-genre="4"] .hero {
+  border-width: 3px;
+  border-radius: 25px 25px 25px 4px;
+}
+body[data-genre="5"] h2 { font-family: Georgia, serif; font-style: italic; }
+body[data-genre="2"] .hero { border-style: dashed; }
+
+.badge { color: var(--accent); font-weight: 750; }
+.hero p { color: var(--muted); }
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 22px 0;
+}
+.card {
+  padding: 24px;
+  background: #182139;
+  border: 1px solid #34405a;
+  border-radius: 19px;
+}
+.card h3 { color: var(--accent); }
+ul, ol { padding-left: 23px; }
+li { margin: 9px 0; }
+.steps li::marker { color: var(--accent); font-weight: bold; }
+.start {
+  border-left: 3px solid var(--accent);
+  padding: 7px 16px;
+  margin: 8px 0;
+  background: #0e172c;
+  border-radius: 0 8px 8px 0;
+}
+.btn {
+  border: 1px solid #596682;
+  background: #202a43;
+  color: white;
+  border-radius: 12px;
+  padding: 10px 17px;
+}
+.btn:hover { background: #354360; }
+.primary {
+  background: var(--accent);
+  color: #101426;
+  border: 0;
+  font-weight: 800;
+}
+.primary:hover { filter: brightness(1.12); background: var(--accent); }
+.imagewrap {
+  background: #182139;
+  padding: 18px;
+  border-radius: 20px;
+  margin: 22px 0;
+}
+.imagewrap img {
+  width: 100%;
+  display: block;
+  border-radius: 10px;
+}
+.imagehead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 15px;
+}
+.imagehead h3 { margin: 0; }
+.image-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+.hint { color: var(--muted); font-size: 15px; }
+.poem {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.poem article { background: #0f172b; border-radius: 12px; padding: 18px; }
+.line { display: block; margin-top: 5px; }
+.donebar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.complete { font-weight: 750; color: #93e6b2; }
+footer { color: var(--muted); font-size: 14px; padding-bottom: 40px; }
+dialog {
+  border: 1px solid #68748e;
+  background: #11182a;
+  color: white;
+  max-width: 96vw;
+  width: 1300px;
+  max-height: 94vh;
+  border-radius: 18px;
+  padding: 16px;
+}
+dialog::backdrop { background: #000c; }
+dialog img { width: 100%; display: block; }
+dialog .close { position: sticky; top: 0; display: block; margin: 0 0 12px auto; }
+
+@media (max-width: 850px) {
+  .tabs { grid-template-columns: repeat(3, 1fr); }
+  .grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 500px) {
+  header, main, footer { padding: 18px; }
+  .tabs { gap: 8px; }
+  .portal { min-height: 145px; }
+  .portal strong { font-size: 13px; }
+  .hero { padding: 22px; }
+  .hero::after { font-size: 50px; right: 12px; top: 8px; opacity: .15; }
+  .poem { grid-template-columns: 1fr; }
+  .imagehead { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Genre Quest</h1>
+  <p class="intro">
+    Six portals. Six creative challenges. Choose your lesson’s genre,
+    explore the example, then make it your own in your Humanities book.
+  </p>
+  <p id="progress" class="progress" aria-live="polite"></p>
+</header>
+
+<main>
+  <nav class="tabs" role="tablist" aria-label="Genre portals" id="tabs"></nav>
+  <section id="panel" role="tabpanel" tabindex="-1"></section>
+</main>
+
+<footer>
+  Create in your Humanities book. Finish your challenge and share it
+  with a partner. Your progress is saved on this browser when available.
+</footer>
+
+<dialog id="viewer" aria-label="Enlarged task card">
+  <button class="btn close" onclick="document.getElementById('viewer').close()">
+    Close image ✕
+  </button>
+  <img id="large" alt="">
+  <p class="hint">Zoom your browser for a closer look.</p>
+</dialog>
+
+<script>
+const genres = [
+  {
+    name: "Mystery",
+    title: "Case Closed",
+    icon: "🔎",
+    color: "#37d8cf",
+    image: "images/mystery.png",
+    hook: "Every clue tells a story. Can you close the case?",
+    walt: "create a mystery using clues and a solution.",
+    sc: [
+      "choose a missing object.",
+      "invent two clues that connect to the solution.",
+      "explain how the mystery is solved."
+    ],
+    steps: [
+      "Choose an object: headphones, a trophy or a key.",
+      "Decide where it went and how it got there.",
+      "Invent two clues that lead to your solution.",
+      "Write three short sentences. Draw an evidence board with two labelled clues."
+    ],
+    starters: [
+      "The missing item was…",
+      "The clues were…",
+      "The mystery was solved when…"
+    ],
+    teach: "Clues help solve something unknown. In the example, the muddy print and sports shed photo point to where the trophy was found. Your solution should explain your clues.",
+    day1: "Invent your mystery, write your sentences and sketch your evidence board.",
+    day2: "Finish, label and colour your board. Tell a partner how the clues solve your case."
+  },
+  {
+    name: "Fantasy",
+    title: "Design a Magical Object",
+    icon: "✦",
+    color: "#b69aff",
+    image: "images/fantasy.png",
+    hook: "Step beyond the ordinary. Give your magic a rule.",
+    walt: "create a fantasy object with a magical power and a rule.",
+    sc: [
+      "name a magical object.",
+      "describe its impossible power.",
+      "give it one rule or limitation."
+    ],
+    steps: [
+      "Choose an object: a compass, shoes, a key or your own idea.",
+      "Give it an impossible power.",
+      "Choose one rule: at sunset, once a day or after a kind act.",
+      "Write three sentences. Draw your object and label two features."
+    ],
+    starters: [
+      "My object is called…",
+      "It can…",
+      "It only works when…"
+    ],
+    teach: "Fantasy includes magic or impossible features. A power explains what the object can do. A rule limits when or how it works. The Portal Compass opens a doorway, but only at sunset.",
+    day1: "Invent your object, power and rule. Write your sentences and sketch it.",
+    day2: "Finish your illustration and two labels. Explain the power and rule to a partner."
+  },
+  {
+    name: "Adventure",
+    title: "Choose Your Route",
+    icon: "🧭",
+    color: "#ffb067",
+    image: "images/adventure.png",
+    hook: "A mission. An obstacle. A route of your own.",
+    walt: "create an adventure with a mission, obstacle and solution.",
+    sc: [
+      "choose a mission.",
+      "invent an obstacle.",
+      "describe a sensible way past it."
+    ],
+    steps: [
+      "Choose a mission: reach a lookout, deliver supplies or find a campsite.",
+      "Add an obstacle: a fallen tree, a blocked track or a steep cliff.",
+      "Choose a sensible alternative route.",
+      "Write three sentences. Draw your map with a start, destination, obstacle and detour. Add a simple key."
+    ],
+    starters: [
+      "My mission is…",
+      "In my way is…",
+      "I will get past it by…"
+    ],
+    teach: "Adventure involves a goal, a challenge and action. The lookout example uses a marked detour to avoid a fallen tree. On your map, show where the journey starts and how the alternative route reaches the destination.",
+    day1: "Choose your mission, obstacle and solution. Write and sketch your route.",
+    day2: "Finish the map, labels and key. Trace and explain your journey to a partner."
+  },
+  {
+    name: "Science Fiction",
+    title: "Invent the Future",
+    icon: "🚀",
+    color: "#6bcaff",
+    image: "images/science-fiction.png",
+    hook: "Imagine tomorrow. Solve a problem today.",
+    walt: "imagine future technology that solves a problem.",
+    sc: [
+      "identify an everyday problem.",
+      "invent a gadget to help.",
+      "describe an imagined technological feature."
+    ],
+    steps: [
+      "Choose a problem: lost belongings, heavy bags or language barriers.",
+      "Invent a future gadget that helps.",
+      "Write three sentences about its name, purpose and feature.",
+      "Draw an advert. Include a name, a short slogan and two labelled features."
+    ],
+    starters: [
+      "My invention is…",
+      "It helps people…",
+      "Its special feature is…"
+    ],
+    teach: "Science fiction imagines science and technology beyond what is currently possible. Connect your invention to a real problem. The Find-It Wristband uses an imagined tracking beam to locate lost belongings.",
+    day1: "Choose a problem, invent your solution and write your sentences. Begin the advert.",
+    day2: "Finish your name, slogan and feature labels. Give a partner a short sales pitch."
+  },
+  {
+    name: "Humour",
+    title: "Expectation vs Reality",
+    icon: "💬",
+    color: "#f6d665",
+    image: "images/humour.png",
+    hook: "Set it up. Flip the expectation. Find the funny.",
+    walt: "create humour through an unexpected outcome.",
+    sc: [
+      "show what a character expects.",
+      "create a surprising, harmless outcome.",
+      "use two comic panels, speech bubbles and a sound effect."
+    ],
+    steps: [
+      "Choose a harmless mishap: a dance move, a photo, pancakes or a new trick.",
+      "Panel 1: show what your fictional character expects.",
+      "Panel 2: show the funny surprise.",
+      "Add one caption to each panel, speech bubbles and a sound effect. Colour your comic. No extra paragraph needed."
+    ],
+    starters: ["I thought…", "But…"],
+    teach: "Humour can come from the gap between an expectation and what actually happens. The first panel sets up the idea; the second reveals the surprise. Facial expressions and sound effects help tell the joke. Keep it kind.",
+    day1: "Choose your idea. Sketch two panels and write the captions.",
+    day2: "Finish expressions, speech bubbles, sound effects and colour. Share the surprise with a partner."
+  },
+  {
+    name: "Poetry",
+    title: "Pick Your Poem",
+    icon: "✎",
+    color: "#f39dad",
+    image: "images/poetry.png",
+    hook: "Small poems. Strong images. Your voice.",
+    walt: "write a poem using a chosen structure.",
+    sc: [
+      "choose a topic and one poem style.",
+      "follow the acrostic or five-line pattern.",
+      "choose words and an illustration that suit the topic."
+    ],
+    steps: [
+      "Choose ONE: an acrostic or the scaffolded five-line cinquain.",
+      "Pick a topic you enjoy: music, sport, the ocean or your own idea.",
+      "Say useful words aloud. Write your poem using the pattern below.",
+      "Add a matching coloured-pencil illustration or border."
+    ],
+    starters: [],
+    teach: "Poets choose words carefully to create pictures and feelings. Your poem does not have to rhyme. Read the Ocean example and count the words in each line. Choose only one poem style.",
+    day1: "Choose your style and topic. Write your poem and begin the illustration.",
+    day2: "Check the pattern, finish the illustration and read your poem to a partner. Enjoy the book gallery walk."
+  }
+];
+
+let active = 0;
+let finished = [];
+
+try {
+  const saved = JSON.parse(localStorage.getItem("genre-quest-v1") || "[]");
+  if (Array.isArray(saved)) {
+    finished = [...new Set(saved.filter(
+      n => Number.isInteger(n) && n >= 0 && n < genres.length
+    ))];
+  }
+} catch (error) {}
+
+function renderTabs() {
+  document.getElementById("tabs").innerHTML = genres.map((g, i) => `
+    <button
+      id="tab-${i}"
+      role="tab"
+      aria-controls="panel"
+      aria-selected="${i === active}"
+      tabindex="${i === active ? 0 : -1}"
+      class="portal genre-${i}"
+      style="--c:${g.color}"
+      onclick="selectGenre(${i})">
+      <span class="symbol" aria-hidden="true">${g.icon}</span>
+      <strong>${g.name}</strong>
+      <small>${finished.includes(i) ? "Shared & finished" : "Enter the portal →"}</small>
+    </button>
+  `).join("");
+
+  document.getElementById("progress").textContent =
+    `${finished.length} of 6 genres finished`;
+}
+
+function selectGenre(i) {
+  active = i;
+  const g = genres[i];
+  const isFinished = finished.includes(i);
+
+  document.body.dataset.genre = i;
+  document.documentElement.style.setProperty("--accent", g.color);
+  renderTabs();
+
+  const panel = document.getElementById("panel");
+  panel.setAttribute("aria-labelledby", `tab-${i}`);
+
+  const writingSupport = i === 5 ? `
+    <div class="poem">
+      <article>
+        <strong>Acrostic</strong>
+        <p>Write a short topic word down the page.
+        Start each line with its letter.</p>
+        <p class="hint">MUSIC · SPORT · OCEAN</p>
+      </article>
+      <article>
+        <strong>Five-line cinquain</strong>
+        <span class="line">1. One topic word</span>
+        <span class="line">2. Two describing words</span>
+        <span class="line">3. Three action words</span>
+        <span class="line">4. A four-word feeling phrase</span>
+        <span class="line">5. One word for your topic</span>
+      </article>
+    </div>
+  ` : g.starters.map(s => `<div class="start">${s}</div>`).join("");
+
+  panel.innerHTML = `
+    <div class="hero">
+      <span class="badge">${g.icon} ${g.name.toUpperCase()} PORTAL</span>
+      <h2>${g.title}</h2>
+      <p>${g.hook}</p>
+    </div>
+
+    <div class="grid">
+      <article class="card">
+        <h3>WALT</h3>
+        <p>We are learning to ${g.walt}</p>
+        <h3>Success criteria</h3>
+        <ul>${g.sc.map(s => `<li>I can ${s}</li>`).join("")}</ul>
+      </article>
+
+      <article class="card">
+        <h3>Learn the genre</h3>
+        <p>${g.teach}</p>
+        <p class="hint">Talk first: tell a partner one idea you could create.</p>
+      </article>
+    </div>
+
+    <div class="imagewrap">
+      <div class="imagehead">
+        <h3>Your task card + completed example</h3>
+        <button class="btn" onclick="enlarge()">Open larger ↗</button>
+      </div>
+      <button class="image-button" onclick="enlarge()"
+        aria-label="Enlarge ${g.name} task card and example">
+        <img src="${g.image}"
+          alt="${g.name} creative task card with completed Humanities book example">
+      </button>
+      <p class="hint">Use the example to understand the task.
+      Invent your own version.</p>
+    </div>
+
+    <div class="grid">
+      <article class="card">
+        <h3>Your creative challenge</h3>
+        <ol class="steps">
+          ${g.steps.map(s => `<li>${s}</li>`).join("")}
+        </ol>
+      </article>
+
+      <article class="card">
+        <h3>${i === 5 ? "Choose your poem style" : "Start with these words"}</h3>
+        ${writingSupport}
+        <p class="hint">Use the card’s idea bank or your own ideas.</p>
+      </article>
+    </div>
+
+    <article class="card">
+      <h3>Your two lessons</h3>
+      <p><strong>Day 1:</strong> ${g.day1}</p>
+      <p><strong>Day 2:</strong> ${g.day2}</p>
+      <div class="donebar">
+        <button class="btn primary" onclick="toggleDone()">
+          ${isFinished ? "Mark as still working" : "I’ve finished and shared"}
+        </button>
+        <span class="${isFinished ? "complete" : "hint"}">
+          ${isFinished
+            ? "Portal complete — creation shared!"
+            : "Finish the task and explain your creation to a partner."}
+        </span>
+      </div>
+    </article>
+  `;
+}
+
+function toggleDone() {
+  finished = finished.includes(active)
+    ? finished.filter(i => i !== active)
+    : [...finished, active];
+
+  try {
+    localStorage.setItem("genre-quest-v1", JSON.stringify(finished));
+  } catch (error) {}
+
+  selectGenre(active);
+}
+
+function enlarge() {
+  const g = genres[active];
+  document.getElementById("large").src = g.image;
+  document.getElementById("large").alt =
+    `${g.name} task card and completed example`;
+  document.getElementById("viewer").showModal();
+}
+
+document.getElementById("tabs").addEventListener("keydown", event => {
+  let next = active;
+
+  if (event.key === "ArrowRight") next = (active + 1) % genres.length;
+  else if (event.key === "ArrowLeft") {
+    next = (active + genres.length - 1) % genres.length;
+  }
+  else if (event.key === "Home") next = 0;
+  else if (event.key === "End") next = genres.length - 1;
+  else return;
+
+  event.preventDefault();
+  selectGenre(next);
+  document.getElementById(`tab-${next}`).focus();
+});
+
+selectGenre(0);
+</script>
+</body>
+</html>
